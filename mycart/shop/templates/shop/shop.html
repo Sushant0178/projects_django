@@ -1,0 +1,172 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - Professional E‑Commerce</title>
+
+    <!-- Bootstrap CSS -->
+    <link 
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+      rel="stylesheet"
+    >
+
+    <style>
+        /* Card hover zoom */
+        .product-card img {
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Overlay setup */
+        .product-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card .overlay {
+            position: absolute;
+            inset: 0;                         /* top:0; right:0; bottom:0; left:0 */
+            background: rgba(0, 0, 0, 0.55);  /* semi-transparent dark */
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;             /* only show; no clicks when hidden */
+        }
+        .product-card:hover .overlay {
+            opacity: 1;
+            pointer-events: auto;             /* allow clicks when shown */
+        }
+
+        /* Optional button scale effect */
+        .product-card .overlay .btn {
+            transition: transform 0.2s ease;
+        }
+        .product-card .overlay .btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Hero section */
+        .hero {
+            background: url('{% static "images/hero-banner.jpg" %}') center/cover no-repeat;
+            height: 360px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">MyShop</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav fw-semibold">
+                <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Shop</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero mb-5">
+    <h1 class="display-4 fw-bold text-center px-3 ">Discover Our Best Products</h1>
+</div>
+<style>
+    .text-center {
+    text-align: center !important;
+    color: black;
+}
+</style>
+
+<!-- Product Section -->
+<div class="container my-5">
+    <h2 class="mb-5 text-center fw-bold">Shop Our Products</h2>
+
+    <div class="row g-4">
+        {% for product in Products %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 overflow-hidden product-card position-relative">
+
+                {% if product.image %}
+                    <img src="{{ product.image.url }}"
+                         class="card-img-top"
+                         alt="{{ product.product_name }}"
+                         style="height: 260px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-secondary"
+                         style="height: 260px;"></div>
+                {% endif %}
+
+                <!-- Price badge -->
+                <span class="position-absolute top-0 start-0 m-2 badge bg-warning text-dark fw-semibold">
+                    ₹{{ product.price }}
+                </span>
+
+                <!-- Quick add / view overlay on hover -->
+                <div class="overlay d-flex justify-content-center align-items-center">
+                    <div class="text-center px-2">
+                        <!-- Corrected View link -->
+                        {% comment %} <a href="{% url 'product_detail' product.id %}" {% endcomment %}
+                           class="btn btn-sm btn-light mb-1 w-100">
+                            View
+                        </a>
+                        <!-- Replace '#' with real add-to-cart link if available -->
+                        <a href="#" class="btn btn-sm btn-primary w-100">
+                            Add to cart
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card body with title + truncated description -->
+                <div class="card-body d-flex flex-column justify-content-end p-3">
+                    <h6 class="card-title fw-semibold mb-1">{{ product.product_name }}</h6>
+                    <p class="card-text text-muted small mb-0">
+                        {{ product.description|truncatewords:15 }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center text-muted fs-5">
+                No products available at the moment. Please check back later.
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-light py-4 mt-5">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <p class="mb-2 mb-md-0">&copy; 2025 MyShop. All rights reserved.</p>
+        <ul class="list-unstyled d-flex mb-0">
+            <li class="ms-3"><a class="text-light" href="#">Privacy</a></li>
+            <li class="ms-3"><a class="text-light" href="#">Terms</a></li>
+            <li class="ms-3"><a class="text-light" href="#">Contact</a></li>
+        </ul>
+    </div>
+</footer>
+
+<!-- Bootstrap JS Bundle -->
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>
