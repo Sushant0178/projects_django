@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3_67v2t(7n$)0c@-1lsdz*-mxx9ds%tcjv-rdt+18^3&^q-=%l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -86,6 +86,7 @@ DATABASES = {
 }
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -119,10 +120,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # This is where collectstatic will copy files
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'
+    BASE_DIR / 'static',                  # Your local static folder
 ]
 
 MEDIA_URL = '/media/'
