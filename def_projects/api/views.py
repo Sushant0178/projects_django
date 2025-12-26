@@ -9,58 +9,76 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from django.http import Http404
 from rest_framework import generics , mixins , viewsets
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.viewsets import ModelViewSet
-from blog.models import Blogg
-from .serializers import bloggSerializer
-
-@api_view(['GET' , 'POST'])
-def StudentsViews(request):
-    if request.method  == 'GET': 
-        # get all the data from the student table 
-        students = student.objects.all()
-        serializer = studentSerializer(students , many = True)
-        return Response(serializer.data , status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        serializer = studentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response (serializer.data , status=status.HTTP_201_CREATED )
-        return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
-    
+from blog.models import Blogg , Comment
+from .serializers import bloggSerializer , commentSerializer , LoginSerializer
+from .pagination import CostomPagination
+from .filters import EmployeeFilter
+from .filters import BloggFilter
+from rest_framework.filters import SearchFilter , OrderingFilter
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
 
 
-@api_view(['GET', 'PUT' , 'DELETE', 'PATCH'])
-def StudentDetailView(request, pk):
-    try:  
-        students = student.objects.get(pk=pk)
-    except student.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
-    if request.method == 'GET':
-        serializer = studentSerializer(students)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    elif request.method == 'PUT':
-        serializer = studentSerializer(students, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# @api_view(['GET' , 'POST'])
+# def StudentsViews(request):
+#     if request.method  == 'GET': 
+#         # get all the data from the student table 
+#         students = student.objects.all()
+#         serializer = studentSerializer(students , many = True)
+#         return Response(serializer.data , status=status.HTTP_200_OK)
+#     elif request.method == 'POST':
+#         serializer = studentSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response (serializer.data , status=status.HTTP_201_CREATED )
+#         return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
     
-    elif request.method == 'DELETE':
-        students.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class StudentsViews(generics.ListCreateAPIView):
+    queryset = student.objects.all()
+    serializer_class = studentSerializer
+
+
+# @api_view(['GET', 'PUT' , 'DELETE', 'PATCH'])
+# def StudentDetailView(request, pk):
+#     try:  
+#         students = student.objects.get(pk=pk)
+#     except student.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    elif request.method == 'PATCH':
-        serializer = studentSerializer(students, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+#     if request.method == 'GET':
+#         serializer = studentSerializer(students)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+#     elif request.method == 'PUT':
+#         serializer = studentSerializer(students, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#     elif request.method == 'DELETE':
+#         students.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+#     elif request.method == 'PATCH':
+#         serializer = studentSerializer(students, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StudentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = student.objects.all()
+    serializer_class = studentSerializer
 
 
 
@@ -218,6 +236,9 @@ class EmployeeViewset(ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = employeeSerializer
     lookup_field = 'pk'
+    pagination_class = CostomPagination   #<-------------------- costom pagination 
+    # filterset_fields = ['emp_name' ]  #<-------------------- adding filter fields
+    filterset_class = EmployeeFilter
     
 
 
@@ -225,7 +246,78 @@ class EmployeeViewset(ModelViewSet):
 
 
 #-------------------------------------------------- Blogg ModelViewsets -------------------------------------------------------
-class BloggViewset(ModelViewSet):
+# class BloggViewset(ModelViewSet):
+#     queryset = Blogg.objects.all()
+#     serializer_class = bloggSerializer
+#     lookup_field = 'pk'
+
+class blogsView(generics.ListCreateAPIView):
+    queryset = Blogg.objects.all()
+    serializer_class = bloggSerializer
+    filterset_class = BloggFilter
+    filter_backends = [SearchFilter , OrderingFilter]
+    search_fields = ['blogger_title' , 'text']
+    ordering_fields = ['id' , 'blogger_name'] #<-------------------- ordering fields we can change the ordering based on these fields
+    # lookup_field = 'pk'
+    
+class commentsView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()  
+    serializer_class = commentSerializer
+
+class blogdetailsView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Blogg.objects.all()
     serializer_class = bloggSerializer
     lookup_field = 'pk'
+    
+
+class commentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = commentSerializer
+    lookup_field = 'pk'
+
+
+
+class LoginApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print(request.user)
+        
+        data = request.data
+        serializer = LoginSerializer(data=data)
+        if not serializer.is_valid():
+            return Response({
+            "status": False,
+            "data": serializer.errors   
+        })
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
+
+        user_obj = authenticate(username=username, password=password) # authenticating user from the db
+
+        if user_obj:
+    
+            Token_obj , _ = Token.objects.get_or_create(user=user_obj)
+            print(Token_obj)
+            return Response({
+            "status": True,
+            "data": {'token':str(Token_obj) },
+        })
+
+
+
+        return Response({
+            "status": False,
+            "data": {},
+            "message": "Invalid username or password"
+        })
+
+
+
+
+
+
+
+
+
+    
