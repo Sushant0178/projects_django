@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Employee Details</h1>
+    <br>
+    <table class="table table-bordered">
+        <tr class="table-dark">
+            <th> Id </th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Position</th>
+            <th>Salary</th>
+            <th>Phone Number</th>
+            <th>Date of Hire</th>
+        </tr>
+        <tr>
+            <th>{{ employee.id }}</th>
+            <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+            <td>{{ employee.email }}</td>
+            <td>{{ employee.position }}</td>
+            <td>{{ employee.salary }}</td>
+            <td>{{ employee.phone_number }}</td>
+            <td>{{ employee.hire_date }}</td>
+        </tr>
+    </table>
+
+    {% comment %} <button onclick="location.href='{% url 'edit_employee' employee.id %}'" class="btn btn-warning">Edit Employee</button> {% endcomment %}
+
+    <table class="table">
+        <th><a href="{% url 'all_employees' %}" class="btn btn-primary">Back to All Employees</a></th>
+        <th><button onclick="location.href='{% url 'edit_employee' employee.id %}'" class="btn btn-warning">Edit Employee</button></th>
+        
+        <th><button onclick="location.href='{% url 'delete_employee' employee.id %}'" class="btn btn-danger">Delete Employee</button></th>
+    </table>
+{% endblock %}

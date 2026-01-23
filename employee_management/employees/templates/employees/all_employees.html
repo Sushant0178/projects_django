@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %} all employees {% endblock %}
+{% block content %}
+
+    <h1>all employees page</h1>
+    <br>
+
+    <table class="table table-bordered" >
+    <tr class="table-dark"  >
+        <th>Name</th>
+        <th>Email</th>
+        <th>position</th>
+        <th>Salary</th>
+        <th>Phone number</th>
+        <th>Date of Hire</th>
+        <th>button</th>
+
+    </tr>
+
+    {% for emp in employees %}
+
+    <tr>
+        <td>{{ emp.first_name }}</td>
+        <td>{{ emp.email }}</td>
+        <th>{{ emp.position }}</th>
+        <td>{{ emp.salary }}</td>
+        <th>{{ emp.phone_number }}</th>
+        <td>{{ emp.hire_date }}</td>
+        <th><a href="{% url 'single_employee' emp.id %}" class="btn btn-info">View Details</a></th>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="4">No employees found</td>
+    </tr>
+{% endfor %}
+    </table>
+{% endblock %}
